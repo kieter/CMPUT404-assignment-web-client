@@ -22,7 +22,7 @@ import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-import urllib.parse
+from urllib.parse import urlparse
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -33,7 +33,8 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
-    #def get_host_port(self,url):
+    def get_url_parse(self, url):
+        return urlparse(url)
 
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,17 +60,38 @@ class HTTPClient(object):
     def recvall(self, sock):
         buffer = bytearray()
         done = False
-        while not done:
-            part = sock.recv(1024)
-            if (part):
-                buffer.extend(part)
-            else:
-                done = not part
+        # while not done:
+        #     part = sock.recv(1024)
+        #     if (part):
+        #         buffer.extend(part)
+        #     else:
+        #         done = not part
+        buffer = sock.recv(1024)
+        print()
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
+        parsed_url = self.get_url_parse(url)
+        self.connect(parsed_url.hostname, parsed_url.port)
+
+        # build and send request
+        first_line = "GET %s HTTP/1.1" % (parsed_url.path)
+        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(parsed_url.port))
+        # connection_header = "Connection: close"
+        request = "\r\n".join([first_line, host_header])
+        request += "\r\n\r\n"
+        self.sendall(request)
+
+        # wait for response
+        response = self.recvall(self.socket)
+        print(response)
+        print()
+
+        # get code
         code = 500
         body = ""
+
+        self.close()
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):

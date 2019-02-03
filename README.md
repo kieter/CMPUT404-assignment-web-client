@@ -18,3 +18,14 @@ examples thus some of the code is Copyright © 2001-2013 Python
 Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
+Kieter's submission was made in collaboration with:
+
+Kieter also referenced:
+https://docs.python.org/3/library/urllib.parse.html
+https://stackoverflow.com/questions/20988640/python-tcp-socket-recv-returns-with-nothing-as-soon-as-connection-is-made
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection
+https://uofa-cmput404.github.io/cmput404-slides/05-More-HTTP.html
+https://www.tutorialspoint.com/http/http_requests.htm
+
+
+
