@@ -42,13 +42,20 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        request_lines = []
+        for line in data.splitlines():
+            request_lines.append(line)
+        code = request_lines[0].split()[1]    
+        return code
 
     def get_headers(self,data):
         return None
 
     def get_body(self, data):
-        return None
+        body_start = data.index("\r\n\r\n")
+        body = data[body_start:]
+
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -60,18 +67,18 @@ class HTTPClient(object):
     def recvall(self, sock):
         buffer = bytearray()
         done = False
-        # while not done:
-        #     part = sock.recv(1024)
-        #     if (part):
-        #         buffer.extend(part)
-        #     else:
-        #         done = not part
-        buffer = sock.recv(1024)
-        print()
+        while not done:
+            part = sock.recv(1024)
+            if (part):
+                buffer.extend(part)
+            else:
+                done = not part
+        # buffer = sock.recv(1024)
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
         parsed_url = self.get_url_parse(url)
+        #TODO: Make
         self.connect(parsed_url.hostname, parsed_url.port)
 
         # build and send request
@@ -84,19 +91,59 @@ class HTTPClient(object):
 
         # wait for response
         response = self.recvall(self.socket)
-        print(response)
-        print()
+        print("RESPONSE" + "-"*20)
+        print((response))
+        print("END-RESPONSE" + "-"*20)
 
         # get code
-        code = 500
-        body = ""
+        code = int(self.get_code(response))
+        body = self.get_body(response)
 
         self.close()
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+        parsed_url = self.get_url_parse(url)
+        self.connect(parsed_url.hostname, parsed_url.port)
+
+
+        # build body
+        print("\n" + "ARGS" + "-"*20)
+        print(args)
+        print("END-OF-ARGS" + "-"*20 + "\n")
+        args_list = []
+        for key in args:
+            key_value_pair = "%s=%s" % (key, args[key])
+            # args_list.append("%s=%s" % (key, value))
+            args_list.append(key_value_pair)
+        # print("args_list:")
+        # print(args_list)
+        body = "&".join(args_list)
+
+
+        # build and send request
+        first_line = "POST %s HTTP/1.1" % (parsed_url.path)
+        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(parsed_url.port))
+        content_length_header = "Content-Length: %i" % (len(body))
+        request = "\r\n".join([first_line, host_header, content_length_header])
+        request += "\r\n\r\n"
+        request += body
+        print(repr(request))
+        self.sendall(request)
+
+        # TODO: pass args
+
+        # wait for response
+        response = self.recvall(self.socket)
+        # print("RESPONSE" + "-"*20)
+        # print((response))
+        # print("END-RESPONSE" + "-"*20)
+
+        # get code
+        code = int(self.get_code(response))
+        body = self.get_body(response)
+        
+        self.close()
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
