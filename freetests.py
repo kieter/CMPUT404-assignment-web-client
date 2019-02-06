@@ -153,85 +153,77 @@ class TestHTTPClient(unittest.TestCase):
             print(e)
             print("run_server: Thread died")
 
+    def test404GET(self):
+        '''Test against 404 errors'''
+        MyHTTPHandler.get = nothing_available
+        http = httpclass.HTTPClient()
+        req = http.GET("http://%s:%d/49872398432" % (BASEHOST,BASEPORT) )
+        print()
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 404)
 
-    # PASSED
-    # def test404GET(self):
-    #     '''Test against 404 errors'''
-    #     MyHTTPHandler.get = nothing_available
-    #     http = httpclass.HTTPClient()
-    #     req = http.GET("http://%s:%d/49872398432" % (BASEHOST,BASEPORT) )
-    #     print()
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 404)
+    def test404POST(self):
+        '''Test against 404 errors'''
+        MyHTTPHandler.post = nothing_available
+        http = httpclass.HTTPClient()
+        req = http.POST("http://%s:%d/49872398432" % (BASEHOST,BASEPORT) )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 404)
 
-    # PASSED
-    # def test404POST(self):
-    #     '''Test against 404 errors'''
-    #     MyHTTPHandler.post = nothing_available
-    #     http = httpclass.HTTPClient()
-    #     req = http.POST("http://%s:%d/49872398432" % (BASEHOST,BASEPORT) )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 404)
+    def testGET(self):
+        '''Test HTTP GET'''
+        MyHTTPHandler.get = echo_path_get
+        http = httpclass.HTTPClient()
+        path = "abcdef/gjkd/dsadas"
+        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+        req = http.GET( url )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 200)
+        self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
 
-    # PASSED
-    # def testGET(self):
-    #     '''Test HTTP GET'''
-    #     MyHTTPHandler.get = echo_path_get
-    #     http = httpclass.HTTPClient()
-    #     path = "abcdef/gjkd/dsadas"
-    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-    #     req = http.GET( url )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 200)
-    #     self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
+    def testGETHeaders(self):
+        '''Test HTTP GET Headers'''
+        MyHTTPHandler.get = header_check
+        MyHTTPHandler.post = die_on_method
+        http = httpclass.HTTPClient()
+        path = "abcdef/gjkd/dsadas"
+        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+        req = http.GET( url )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 200)
 
-    # PASSED
-    # def testGETHeaders(self):
-    #     '''Test HTTP GET Headers'''
-    #     MyHTTPHandler.get = header_check
-    #     MyHTTPHandler.post = die_on_method
-    #     http = httpclass.HTTPClient()
-    #     path = "abcdef/gjkd/dsadas"
-    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-    #     req = http.GET( url )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 200)
+    def testPOSTHeaders(self):
+        '''Test HTTP POST Headers'''
+        MyHTTPHandler.post = post_header_check
+        MyHTTPHandler.get  = die_on_method
+        http = httpclass.HTTPClient()
+        path = "abcdef/gjkd/dsadas"
+        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+        req = http.POST( url )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 200,"Code is %s but I wanted a 200 OK" % req.code)
 
-    # PASSED
-    # def testPOSTHeaders(self):
-    #     '''Test HTTP POST Headers'''
-    #     MyHTTPHandler.post = post_header_check
-    #     MyHTTPHandler.get  = die_on_method
-    #     http = httpclass.HTTPClient()
-    #     path = "abcdef/gjkd/dsadas"
-    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-    #     req = http.POST( url )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 200,"Code is %s but I wanted a 200 OK" % req.code)
-
-    # PASSED
-    # TODO: test this with args that have spaces
-    # def testPOST(self):
-    #     '''Test HTTP POST with an echo server'''
-    #     MyHTTPHandler.post = echo_post
-    #     http = httpclass.HTTPClient()
-    #     path = "post_echoer"
-    #     url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
-    #     args = {'a':'aaaaaaaaaaaaa',
-    #             'b':'bbbbbbbbbbbbbbbbbbbbbb',
-    #             'c':'c',
-    #             'd':'012345\r67890\n2321321\n\r'}
-    #     print("Sending POST!")
-    #     req = http.POST( url, args=args )
-    #     self.assertTrue(req != None, "None Returned!")
-    #     self.assertTrue(req.code == 200)
-    #     print("Test Post Body: [%s]" % req.body)
-    #     outargs = json.loads(req.body)
-    #     print(outargs.__class__)
-    #     for key in args:
-    #         self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
-    #     for key in outargs:
-    #         self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
+    def testPOST(self):
+        '''Test HTTP POST with an echo server'''
+        MyHTTPHandler.post = echo_post
+        http = httpclass.HTTPClient()
+        path = "post_echoer"
+        url = "http://%s:%d/%s" % (BASEHOST,BASEPORT, path)
+        args = {'a':'aaaaaaaaaaaaa',
+                'b':'bbbbbbbbbbbbbbbbbbbbbb',
+                'c':'c',
+                'd':'012345\r67890\n2321321\n\r'}
+        print("Sending POST!")
+        req = http.POST( url, args=args )
+        self.assertTrue(req != None, "None Returned!")
+        self.assertTrue(req.code == 200)
+        print("Test Post Body: [%s]" % req.body)
+        outargs = json.loads(req.body)
+        print(outargs.__class__)
+        for key in args:
+            self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
+        for key in outargs:
+            self.assertTrue(args[key] == outargs[key][0], "Key [%s] not found" % key)
         
     # consider disabling this test until everything else works
     def testInternetGets(self):
@@ -240,10 +232,10 @@ class TestHTTPClient(unittest.TestCase):
         MyHTTPHandler.get = echo_path_get
         http = httpclass.HTTPClient()        
         urls = [
-            "http://www.cs.ualberta.ca/"
+            # "http://www.cs.ualberta.ca/"
             # "http://softwareprocess.es/static/SoftwareProcess.es.html",
             # "http://c2.com/cgi/wiki?CommonLispHyperSpec",
-            # "http://slashdot.org"
+            "http://slashdot.org"
             ]
         for url in urls:
             try:

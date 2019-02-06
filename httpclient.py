@@ -78,15 +78,22 @@ class HTTPClient(object):
 
     def GET(self, url, args=None):
         parsed_url = self.get_url_parse(url)
-        #TODO: Make
-        self.connect(parsed_url.hostname, parsed_url.port)
+        port = parsed_url.port
+        if port == None:
+            port = 80
 
+        #TODO: Make
+        self.connect(parsed_url.hostname, port)
+
+        path = parsed_url.path if parsed_url.path != "" else "/"
         # build and send request
-        first_line = "GET %s HTTP/1.1" % (parsed_url.path)
-        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(parsed_url.port))
+        first_line = "GET %s HTTP/1.1" % (path)
+        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(port))
         # connection_header = "Connection: close"
         request = "\r\n".join([first_line, host_header])
         request += "\r\n\r\n"
+        print("REQUEST")
+        print(repr(request))
         self.sendall(request)
 
         # wait for response
@@ -104,26 +111,31 @@ class HTTPClient(object):
 
     def POST(self, url, args=None):
         parsed_url = self.get_url_parse(url)
-        self.connect(parsed_url.hostname, parsed_url.port)
+        port = parsed_url.port
+        if port == None:
+            port = 80
 
+        self.connect(parsed_url.hostname, port)
 
         # build body
         print("\n" + "ARGS" + "-"*20)
         print(args)
         print("END-OF-ARGS" + "-"*20 + "\n")
         args_list = []
-        for key in args:
-            key_value_pair = "%s=%s" % (key, args[key])
-            # args_list.append("%s=%s" % (key, value))
-            args_list.append(key_value_pair)
+        if args != None:
+            for key in args:
+                key_value_pair = "%s=%s" % (key, args[key])
+                # args_list.append("%s=%s" % (key, value))
+                args_list.append(key_value_pair)
         # print("args_list:")
         # print(args_list)
         body = "&".join(args_list)
 
 
         # build and send request
-        first_line = "POST %s HTTP/1.1" % (parsed_url.path)
-        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(parsed_url.port))
+        path = parsed_url.path if parsed_url.path != "" else "/"
+        first_line = "POST %s HTTP/1.1" % (path)
+        host_header = "Host: %s" % (parsed_url.hostname + ":" + str(port))
         content_length_header = "Content-Length: %i" % (len(body))
         request = "\r\n".join([first_line, host_header, content_length_header])
         request += "\r\n\r\n"
