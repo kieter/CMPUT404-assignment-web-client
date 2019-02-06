@@ -82,7 +82,6 @@ class HTTPClient(object):
         if port == None:
             port = 80
 
-        #TODO: Make
         self.connect(parsed_url.hostname, port)
 
         path = parsed_url.path if parsed_url.path != "" else "/"
@@ -92,15 +91,11 @@ class HTTPClient(object):
         # connection_header = "Connection: close"
         request = "\r\n".join([first_line, host_header])
         request += "\r\n\r\n"
-        print("REQUEST")
-        print(repr(request))
         self.sendall(request)
 
         # wait for response
         response = self.recvall(self.socket)
-        print("RESPONSE" + "-"*20)
-        print((response))
-        print("END-RESPONSE" + "-"*20)
+        print(response)
 
         # get code
         code = int(self.get_code(response))
@@ -118,17 +113,11 @@ class HTTPClient(object):
         self.connect(parsed_url.hostname, port)
 
         # build body
-        print("\n" + "ARGS" + "-"*20)
-        print(args)
-        print("END-OF-ARGS" + "-"*20 + "\n")
         args_list = []
         if args != None:
             for key in args:
                 key_value_pair = "%s=%s" % (key, args[key])
-                # args_list.append("%s=%s" % (key, value))
                 args_list.append(key_value_pair)
-        # print("args_list:")
-        # print(args_list)
         body = "&".join(args_list)
 
 
@@ -140,16 +129,11 @@ class HTTPClient(object):
         request = "\r\n".join([first_line, host_header, content_length_header])
         request += "\r\n\r\n"
         request += body
-        print(repr(request))
         self.sendall(request)
-
-        # TODO: pass args
 
         # wait for response
         response = self.recvall(self.socket)
-        # print("RESPONSE" + "-"*20)
-        # print((response))
-        # print("END-RESPONSE" + "-"*20)
+        print(response)
 
         # get code
         code = int(self.get_code(response))

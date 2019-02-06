@@ -158,7 +158,6 @@ class TestHTTPClient(unittest.TestCase):
         MyHTTPHandler.get = nothing_available
         http = httpclass.HTTPClient()
         req = http.GET("http://%s:%d/49872398432" % (BASEHOST,BASEPORT) )
-        print()
         self.assertTrue(req != None, "None Returned!")
         self.assertTrue(req.code == 404)
 
@@ -261,15 +260,15 @@ class TestHTTPClient(unittest.TestCase):
             TestHTTPClient.httpd.server_close()
             time.sleep(1)
 
-# def test_test_webserver():
-#     print("http://%s:%d/dsadsadsadsa\n" % (BASEHOST,BASEPORT) )
-#     MyHTTPHandler.get = echo_path_get
-#     MyHTTPHandler.post = echo_post
-#     httpd = make_http_server()
-#     try:
-#         httpd.serve_forever()
-#     finally:
-#         httpd.shutdown()
+def test_test_webserver():
+    print("http://%s:%d/dsadsadsadsa\n" % (BASEHOST,BASEPORT) )
+    MyHTTPHandler.get = echo_path_get
+    MyHTTPHandler.post = echo_post
+    httpd = make_http_server()
+    try:
+        httpd.serve_forever()
+    finally:
+        httpd.shutdown()
 
 if __name__ == '__main__':
     unittest.main()
