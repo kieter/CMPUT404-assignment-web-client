@@ -19,10 +19,14 @@ Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
 Kieter's submission was made in collaboration with:
-* Gurmeet (Gary) Dhillon
 * Michael Paradis
 * Cole Mackenzie
 * Owen McLeod
+
+Kieter also attempted to help out:
+* Gurmeet (Gary) Dhillon
+* Mandy Meindersma
+* Liam McDonald
 
 Kieter also referenced:
 https://docs.python.org/3/library/urllib.parse.html

@@ -88,8 +88,8 @@ class HTTPClient(object):
         # build and send request
         first_line = "GET %s HTTP/1.1" % (path)
         host_header = "Host: %s" % (parsed_url.hostname + ":" + str(port))
-        # connection_header = "Connection: close"
-        request = "\r\n".join([first_line, host_header])
+        connection_header = "Connection: close"
+        request = "\r\n".join([first_line, host_header, connection_header])
         request += "\r\n\r\n"
         self.sendall(request)
 
